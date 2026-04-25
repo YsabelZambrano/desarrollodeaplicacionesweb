@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <link rel="stylesheet" href="/lab03/css/style.css">
+  <link rel="stylesheet" href="/css/style.css">
   <title>Agenda</title>
 </head>
 <body>
@@ -9,7 +9,6 @@
 <h1 class="titulo">📅 Agenda</h1>
 
 <div class="main">
-
 
   <div class="card">
     <h2>✏️ Editar Evento</h2>
@@ -29,10 +28,8 @@
     </div>
   </div>
 
- 
   <div class="card">
     <h2>📋 Eventos Programados</h2>
-
 
     <div class="stats">
       <div class="stat">
@@ -47,7 +44,6 @@
 
     <div id="lista"></div>
 
- 
     <h2>📅 Vista mensual</h2>
 
     <div class="cal-header">
@@ -57,7 +53,6 @@
     </div>
 
     <div id="calendario" class="calendario"></div>
-
   </div>
 
 </div>
@@ -75,7 +70,7 @@ function formatearHora(h) {
 }
 
 async function cargar() {
-  const res = await fetch('/lab03/api/eventos');
+  const res = await fetch('/api/eventos'); 
   const data = await res.json();
 
   const contenedor = document.getElementById('lista');
@@ -88,11 +83,9 @@ async function cargar() {
     grupos[e.fecha].push(e);
   });
 
-
   for (const f in grupos) {
     grupos[f].sort((a, b) => a.hora.localeCompare(b.hora));
   }
-
 
   document.getElementById('totalEventos').innerText = data.length;
   document.getElementById('totalDias').innerText = Object.keys(grupos).length;
@@ -126,8 +119,6 @@ async function cargar() {
   generarCalendario(data);
 }
 
-
-
 async function crear() {
   const fechaInput = document.getElementById('fecha').value;
   const horaInput = document.getElementById('hora').value;
@@ -146,7 +137,7 @@ async function crear() {
     editando = null;
   }
 
-  await fetch('/lab03/api/eventos', {
+  await fetch('/api/eventos', { 
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({ fecha, hora, descripcion: desc })
@@ -157,7 +148,7 @@ async function crear() {
 }
 
 async function eliminar(fecha, hora) {
-  await fetch('/lab03/api/eventos', {
+  await fetch('/api/eventos', { 
     method: 'DELETE',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({ fecha, hora })
@@ -183,7 +174,6 @@ function limpiar() {
   document.getElementById('desc').value = '';
   editando = null;
 }
-
 
 function cambiarMes(dir) {
   fechaActual.setMonth(fechaActual.getMonth() + dir);

@@ -6,14 +6,16 @@ const app = express();
 
 app.use(express.json());
 
-app.use('/lab03', express.static(path.join(__dirname, 'pub')));
 
-app.get('/lab03', (req, res) => {
+app.use(express.static(path.join(__dirname, 'pub')));
+
+
+app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 
-app.get('/lab03/api/eventos', (req, res) => {
+app.get('/api/eventos', (req, res) => {
   const base = './agenda';
   let eventos = [];
 
@@ -47,7 +49,7 @@ app.get('/lab03/api/eventos', (req, res) => {
 });
 
 
-app.post('/lab03/api/eventos', (req, res) => {
+app.post('/api/eventos', (req, res) => {
   let { fecha, hora, descripcion } = req.body;
 
   if (!fecha || !hora || !descripcion) {
@@ -65,7 +67,8 @@ app.post('/lab03/api/eventos', (req, res) => {
   res.json({ ok: true });
 });
 
-app.delete('/lab03/api/eventos', (req, res) => {
+
+app.delete('/api/eventos', (req, res) => {
   const { fecha, hora } = req.body;
 
   const dir = `./agenda/${fecha}`;
@@ -75,7 +78,6 @@ app.delete('/lab03/api/eventos', (req, res) => {
   }
 
   const archivos = fs.readdirSync(dir);
-
 
   const archivo = archivos.find(a => a.startsWith(hora));
 
@@ -89,6 +91,7 @@ app.delete('/lab03/api/eventos', (req, res) => {
   res.json({ ok: true });
 });
 
+
 app.listen(3000, () => {
-  console.log('http://localhost:3000/lab03');
+  console.log('http://localhost:3000/');
 });
