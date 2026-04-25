@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="/css/style.css">
+  <title>Agenda</title>
+</head>
+<body>
+
+<h1 class="titulo">📅 Agenda</h1>
+
+<div class="main">
+
+  <div class="card">
+    <h2>✏️ Editar Evento</h2>
+
+    <label>Fecha</label>
+    <input type="date" id="fecha">
+
+    <label>Hora</label>
+    <input type="time" id="hora">
+
+    <label>Descripción</label>
+    <textarea id="desc" placeholder="Descripción"></textarea>
+
+    <div class="actions">
+      <button class="btn-primary" onclick="crear()">Guardar / Actualizar</button>
+      <button class="btn-cancel" onclick="limpiar()">Cancelar</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📋 Eventos Programados</h2>
+
+    <div class="stats">
+      <div class="stat">
+        <span id="totalEventos">0</span>
+        <p>Total Eventos</p>
+      </div>
+      <div class="stat">
+        <span id="totalDias">0</span>
+        <p>Días únicos</p>
+      </div>
+    </div>
+
+    <div id="lista"></div>
+
+    <h2>📅 Vista mensual</h2>
+
+    <div class="cal-header">
+      <button onclick="cambiarMes(-1)">⬅️</button>
+      <span id="mesActual"></span>
+      <button onclick="cambiarMes(1)">➡️</button>
+    </div>
+
+    <div id="calendario" class="calendario"></div>
+  </div>
+
+</div>
+
+<script>
+let editando = null;
+let fechaActual = new Date();
+
+function formatearFecha(f) {
+  return f.replaceAll("-", ".");
+}
+
+function formatearHora(h) {
+  return h.replace(":", ".");
+}
+
+async function cargar() {
+  const res = await fetch('/api/eventos'); 
+  const data = await res.json();
+
+  const contenedor = document.getElementById('lista');
+  contenedor.innerHTML = '';
+
+  const grupos = {};
+
+  data.forEach(e => {
+    if (!grupos[e.fecha]) grupos[e.fecha] = [];
+    grupos[e.fecha].push(e);
+  });
+
+  for (const f in grupos) {
+    grupos[f].sort((a, b) => a.hora.localeCompare(b.hora));
+  }
+
+  document.getElementById('totalEventos').innerText = data.length;
+  document.getElementById('totalDias').innerText = Object.keys(grupos).length;
+
+  for (const fecha in grupos) {
+    const bloque = document.createElement('div');
+    bloque.className = 'dia';
+
+    bloque.innerHTML = `<h3>${fecha}</h3>`;
+
+    grupos[fecha].forEach(e => {
+      const item = document.createElement('div');
+      item.className = 'evento';
+
+      item.innerHTML = `
+        <div>
+          <span class="hora">${e.hora}</span> - ${e.descripcion}
+        </div>
+        <div>
+          <button class="btn-edit" onclick="editar('${e.fecha}','${e.hora}','${e.descripcion}')">Editar</button>
+          <button class="btn-delete" onclick="eliminarYRecargar('${e.fecha}','${e.hora}')">Eliminar</button>
+        </div>
+      `;
+
+      bloque.appendChild(item);
+    });
+
+    contenedor.appendChild(bloque);
+  }
+
+  generarCalendario(data);
+}
+
+async function crear() {
+  const fechaInput = document.getElementById('fecha').value;
+  const horaInput = document.getElementById('hora').value;
+  const desc = document.getElementById('desc').value;
+
+  if (!fechaInput || !horaInput || !desc) {
+    alert("Completa todos los campos");
+    return;
+  }
+
+  const fecha = formatearFecha(fechaInput);
+  const hora = formatearHora(horaInput);
+
+  if (editando) {
+    await eliminar(editando.fecha, editando.hora);
+    editando = null;
+  }
+
+  await fetch('/api/eventos', { 
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ fecha, hora, descripcion: desc })
+  });
+
+  limpiar();
+  cargar();
+}
+
+async function eliminar(fecha, hora) {
+  await fetch('/api/eventos', { 
+    method: 'DELETE',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ fecha, hora })
+  });
+}
+
+async function eliminarYRecargar(f, h) {
+  await eliminar(f, h);
+  cargar();
+}
+
+function editar(f, h, d) {
+  document.getElementById('fecha').value = f.replaceAll(".", "-");
+  document.getElementById('hora').value = h.replace(".", ":");
+  document.getElementById('desc').value = d;
+
+  editando = { fecha: f, hora: h };
+}
+
+function limpiar() {
+  document.getElementById('fecha').value = '';
+  document.getElementById('hora').value = '';
+  document.getElementById('desc').value = '';
+  editando = null;
+}
+
+function cambiarMes(dir) {
+  fechaActual.setMonth(fechaActual.getMonth() + dir);
+  cargar();
+}
+
+function generarCalendario(data) {
+  const cont = document.getElementById('calendario');
+  const titulo = document.getElementById('mesActual');
+
+  cont.innerHTML = '';
+
+  const año = fechaActual.getFullYear();
+  const mes = fechaActual.getMonth();
+
+  const nombres = ["Enero","Febrero","Marzo","Abril","Mayo","Junio",
+                   "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+
+  titulo.innerText = `${nombres[mes]} ${año}`;
+
+  const primerDia = new Date(año, mes, 1).getDay();
+  const diasMes = new Date(año, mes + 1, 0).getDate();
+
+  const fechasEventos = new Set(data.map(e => e.fecha));
+
+  for (let i = 0; i < primerDia; i++) {
+    cont.appendChild(document.createElement('div'));
+  }
+
+  for (let d = 1; d <= diasMes; d++) {
+    const div = document.createElement('div');
+    div.className = 'dia-cal';
+    div.innerText = d;
+
+    const fecha = `${año}.${String(mes+1).padStart(2,'0')}.${String(d).padStart(2,'0')}`;
+
+    if (fechasEventos.has(fecha)) {
+      div.classList.add('tiene-evento');
+
+      const punto = document.createElement('div');
+      punto.className = 'punto';
+      div.appendChild(punto);
+    }
+
+    cont.appendChild(div);
+  }
+}
+
+cargar();
+</script>
+
+</body>
+</html>
