@@ -23,14 +23,17 @@
 
 El repositorio está organizado de la siguiente manera:
 
-* `Index.html`: Página principal del laboratorio.
-* `*.css`: Archivos de estilos para cada ejercicio.
-* `*.js`: Lógica de programación en JavaScript.
-* `resources/`: Carpeta que contiene imágenes y otros activos.
-* `Dockerfile`: Configuración para crear la imagen de Docker.
-* `000-default.conf`: Configuración personalizada del servidor Apache.
-* `jsDesarrollador`: Archivos .js para el desarrollador lo pueda observar.
-* `jsDesarrollador`: Archivos .js ofuscados para que no sean visibles para los demás.
+* `pub/`: contiene los archivos publicos que se muestran en el navegador.
+* `css/`: carpeta de estilos del proyecto.
+* `style.css`: archivo que define el diseño visual de la pagina.
+* `index.html`: pagina principal del laboratorio, donde se estructura el contenido que ve el usuario.
+* `package.json`: archivo de configuracion del proyecto Node.js que incluye dependencias, scripts y metadatos.
+* `package-lock.json`: archivo que asegura versiones exactas de las dependencias instaladas.
+* `Dockerfile`: configuración para crear la imagen de Docker.
+* `.dockerignore`: especifica los archivos que no se deben incluir en la imagen Docker.
+* `.gitignore`: define los archivos y carpetas que Git debe ignorar.
+
+---
 
 ## 4. Decripcion del Laboratorio
 
@@ -42,6 +45,7 @@ El repositorio está organizado de la siguiente manera:
 ---
 
 ## 5. Desplegar contenedor
+
 docker build . -t i_daw_8095
 
 docker run -d -p 8095:3000 --name c_daw_8095 i_daw_8095
@@ -49,4 +53,5 @@ docker run -d -p 8095:3000 --name c_daw_8095 i_daw_8095
 ---
 
 ## 6. Acceso al sitio Web
-http://localhost:8088
+
+http://localhost:8095
