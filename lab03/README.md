@@ -1,4 +1,4 @@
-# Laboratorio 02: JavaScript (Fronted)
+# Laboratorio 03: JavaScript (Backend)
 ## 1. Integrantes
 
 | Autor                                | Porcentaje |
