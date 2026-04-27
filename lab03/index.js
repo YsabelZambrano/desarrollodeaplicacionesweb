@@ -10,11 +10,6 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'pub')));
 
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-
 app.get('/api/eventos', (req, res) => {
   const base = './agenda';
   let eventos = [];
