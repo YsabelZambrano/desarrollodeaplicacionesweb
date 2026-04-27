@@ -42,7 +42,7 @@ El repositorio está organizado de la siguiente manera:
 ---
 
 ## 5. Desplegar contenedor
-docker build . -t i_daw_8085
+docker build . -t i_daw_8095
 
 docker run -d -p 8095:3000 --name c_daw_8095 i_daw_8095
 
